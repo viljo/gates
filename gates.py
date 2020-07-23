@@ -20,28 +20,40 @@ index = 0
 white_percent_old = 0
 status = "none"
 while(1):
-    frame1 = fvs1.read()
+    frame_org = fvs1.read()
 
-    if np.shape(frame1) == (): # check för empty frame
+    if np.shape(frame_org) == (): # check för empty frame
         continue
 
-    frame1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
-    frame1 = cv2.warpPerspective(frame1,M,(250,200))
+    frame_org = cv2.warpPerspective(frame_org,M,(250,200))
+    frame1 = cv2.cvtColor(frame_org, cv2.COLOR_BGR2GRAY)
     frame1 = cv2.copyMakeBorder(frame1, 3, 3, 3, 3, cv2.BORDER_CONSTANT, 1) # make black frame around image
 
     frame1 = cv2.adaptiveThreshold(frame1,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,2)
 
     vertical = cv2.bitwise_not(np.copy(frame1))
     rows = vertical.shape[0]
-    vertical_size = rows // 3
+    vertical_size = rows // 4
     verticalStructure = cv2.getStructuringElement(cv2.MORPH_RECT, (1, vertical_size))
     vertical = cv2.erode(vertical, verticalStructure)
     vertical = cv2.dilate(vertical, verticalStructure)
+
+   
 
     vertical_size = rows
     verticalStructure = cv2.getStructuringElement(cv2.MORPH_RECT, (1, vertical_size))
     vertical = cv2.dilate(vertical, verticalStructure)
     vertical = cv2.dilate(vertical, verticalStructure)
+
+    vertical = cv2.ximgproc.thinning(vertical)
+    #cv2.imshow('VIDEO1_vertical1', vertical)
+
+    height, width = vertical.shape[:2]  # image height and width
+    for x in range(width):
+        if vertical[100,x] != 0:
+            cv2.line(frame_org, (x,0), (x,height), (0,255,0), (1))
+
+    cv2.imshow('VIDEO1_orig', frame_org)
 
     horizontalStructure = cv2.getStructuringElement(cv2.MORPH_RECT, (50, 1))
     vertical = cv2.dilate(vertical, horizontalStructure)
